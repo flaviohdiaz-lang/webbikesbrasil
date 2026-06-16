@@ -115,7 +115,7 @@ export default function NavbarLogo() {
         </a>
 
         <a
-          href="/planos"
+          href="/anunciar"
           className="advertise-badge mx-auto shrink-0 rounded-lg border-2 border-yellow-400 bg-blue-950 px-3 py-2 text-xs font-bold text-yellow-100 no-underline sm:mx-0 sm:px-4 sm:text-sm"
         >
           Anuncie aqui!
