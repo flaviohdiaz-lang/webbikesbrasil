@@ -1,12 +1,68 @@
-export const listingCategories = [
-  "Bikes",
+export const listingTypes = [
+  "Bicicletas",
   "Peças",
   "Acessórios",
   "Serviços",
   "Eventos",
 ] as const;
 
-export type ListingCategory = (typeof listingCategories)[number];
+export type ListingType = (typeof listingTypes)[number];
+
+export const listingSubcategories: Record<
+  ListingType,
+  readonly string[]
+> = {
+  Bicicletas: [
+    "Mountain Bike (MTB)",
+    "Speed/Road",
+    "Bike de Cidade",
+    "BMX",
+    "Gravel",
+    "Elétrica (e-Bike)",
+    "Infantil",
+    "Dobrável",
+  ],
+  Peças: [
+    "Quadro",
+    "Garfo",
+    "Rodas/Aros",
+    "Pneus",
+    "Câmbio/Transmissão",
+    "Freios",
+    "Selim",
+    "Guidão",
+    "Pedais",
+    "Corrente/Cassete",
+    "Suspensão",
+  ],
+  Acessórios: [
+    "Capacete",
+    "Luzes/Iluminação",
+    "Cadeado",
+    "GPS/Computador",
+    "Bolsa/Mochila",
+    "Bomba de Ar",
+    "Roupas",
+  ],
+  Serviços: [],
+  Eventos: [],
+};
+
+export function hasSubcategories(type: ListingType): boolean {
+  return listingSubcategories[type].length > 0;
+}
+
+export function isValidSubcategory(
+  type: ListingType,
+  subcategory: string,
+): boolean {
+  return listingSubcategories[type].includes(subcategory);
+}
+
+/** @deprecated Use listingTypes */
+export const listingCategories = listingTypes;
+/** @deprecated Use ListingType */
+export type ListingCategory = ListingType;
 
 export const brazilianStates = [
   { uf: "AC", name: "Acre" },

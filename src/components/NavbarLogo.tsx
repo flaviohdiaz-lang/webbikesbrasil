@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NavbarLogo() {
   return (
     <header className="site-banner w-full shadow-md">
@@ -103,7 +105,7 @@ export default function NavbarLogo() {
           </svg>
         </div>
 
-        <a
+        <Link
           href="/"
           className="text-center no-underline"
           aria-label="Web Bikes Brasil.com — página inicial"
@@ -112,15 +114,47 @@ export default function NavbarLogo() {
             <span className="text-white">Web Bikes </span>
             <span className="text-blue-950">Brasil.com</span>
           </h1>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/anunciar"
           className="advertise-badge mx-auto shrink-0 rounded-lg border-2 border-yellow-400 bg-blue-950 px-3 py-2 text-xs font-bold text-yellow-100 no-underline sm:mx-0 sm:px-4 sm:text-sm"
         >
           Anuncie aqui!
-        </a>
+        </Link>
       </div>
+
+      <nav
+        className="border-b border-emerald-200 bg-white"
+        aria-label="Menu principal"
+      >
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-1 px-4 py-2 sm:gap-2">
+          <Link
+            href="/"
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800"
+          >
+            Início
+          </Link>
+          <Link
+            href="/anuncios"
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold text-emerald-800 transition hover:bg-yellow-50 hover:text-emerald-900"
+          >
+            Ver anúncios
+          </Link>
+          <Link
+            href="/eventos"
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800"
+          >
+            Eventos
+          </Link>
+          <Link
+            href="/planos"
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800"
+          >
+            Planos
+          </Link>
+        </div>
+      </nav>
     </header>
   );
 }
