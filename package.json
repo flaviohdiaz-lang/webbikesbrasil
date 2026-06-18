@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^7.5.1",
     "@mercadopago/sdk-react": "^1.0.7",
+    "@supabase/auth-helpers-nextjs": "^0.15.0",
     "@supabase/supabase-js": "^2.108.2",
     "mercadopago": "^3.1.0",
     "next": "16.2.7",
