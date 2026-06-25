@@ -20,7 +20,7 @@ const heroCategories = [
 
 export default function Hero() {
   return (
-    <section className="bg-emerald-600 px-4 py-14 text-white">
+    <section className="bg-emerald-900 px-4 py-14 text-white">
       <div className="mx-auto max-w-6xl text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Encontre o pedal perfeito
