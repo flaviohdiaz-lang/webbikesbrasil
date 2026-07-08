@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -94,7 +94,24 @@ function EstadoVazio({ filtrosAtivos }: { filtrosAtivos: boolean }) {
   )
 }
 
-export default function AnunciosPage() {
+function AnunciosPageFallback() {
+  return (
+    <main className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Anúncios</h1>
+        <div className="h-9 w-28 rounded-lg bg-gray-100 animate-pulse" />
+      </div>
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-6 h-32 animate-pulse" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+    </main>
+  )
+}
+
+function AnunciosPageContent() {
   const params = useSearchParams()
 
   const [filtros, setFiltros] = useState<TFiltros>({
@@ -158,5 +175,13 @@ export default function AnunciosPage() {
         }
       </div>
     </main>
+  )
+}
+
+export default function AnunciosPage() {
+  return (
+    <Suspense fallback={<AnunciosPageFallback />}>
+      <AnunciosPageContent />
+    </Suspense>
   )
 }
