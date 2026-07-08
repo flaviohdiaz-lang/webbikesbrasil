@@ -13,7 +13,7 @@ export default function AnunciarPage() {
     <div className="min-h-screen bg-gray-50">
       <NavbarLogo />
 
-      <header className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-yellow-400 px-4 py-10 text-white">
+      <header className="bg-gradient-to-r from-emerald-700 via-emerald-900 to-yellow-400 px-4 py-10 text-white">
         <div className="mx-auto max-w-3xl">
           <Link
             href="/"

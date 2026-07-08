@@ -7,7 +7,7 @@ export default function EventosPage() {
     <div className="min-h-screen bg-gray-50">
       <NavbarLogo />
 
-      <header className="bg-emerald-600 px-4 py-10 text-white">
+      <header className="bg-emerald-900 px-4 py-10 text-white">
         <div className="mx-auto max-w-6xl">
           <Link
             href="/"

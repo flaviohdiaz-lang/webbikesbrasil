@@ -30,7 +30,7 @@ export default function EventosFilters() {
             onClick={() => setActiveFilter(option)}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
               activeFilter === option
-                ? "bg-emerald-600 text-white shadow-sm"
+                ? "bg-emerald-900 text-white shadow-sm"
                 : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"
             }`}
           >
