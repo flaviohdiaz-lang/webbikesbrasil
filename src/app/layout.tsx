@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
-        <body className="min-h-full font-sans">{children}</body>
+        <body className="flex min-h-full flex-col font-sans">
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </body>
       </html>
     </ClerkProvider>
   );
