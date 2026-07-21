@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import Footer from "@/components/Footer";
+import PromoBanner from "@/components/PromoBanner";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
@@ -23,6 +24,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
         <body className="flex min-h-full flex-col font-sans">
+          <PromoBanner />
           <div className="flex-1">{children}</div>
           <Footer />
         </body>
