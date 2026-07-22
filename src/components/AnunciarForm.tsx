@@ -12,6 +12,10 @@ import {
   parseBrazilianCurrency,
 } from "@/lib/currency";
 import {
+  compressListingPhoto,
+  isAllowedImageType,
+} from "@/lib/image-compression";
+import {
   formatBrazilianPhoneInput,
   isValidBrazilianPhone,
   parseBrazilianPhone,
@@ -56,8 +60,11 @@ export default function AnunciarForm() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const busy = loading || compressing;
 
   function updateAdType(value: ListingType) {
     setForm((prev) => ({ ...prev, adType: value, subcategory: "" }));
@@ -76,7 +83,7 @@ export default function AnunciarForm() {
     setPhotos([]);
   }
 
-  function handlePhotosChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handlePhotosChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(event.target.files ?? []);
     event.target.value = "";
 
@@ -92,23 +99,38 @@ export default function AnunciarForm() {
     }
 
     const nextFiles = selected.slice(0, availableSlots);
-    const invalidFile = nextFiles.find(
-      (file) => !file.type.startsWith("image/") || file.size > 5 * 1024 * 1024,
-    );
+    const invalidFile = nextFiles.find((file) => !isAllowedImageType(file));
 
     if (invalidFile) {
-      setErrorMessage(
-        "Cada foto deve ser uma imagem (JPG, PNG ou WebP) de até 5 MB.",
-      );
+      setErrorMessage("Cada foto deve ser uma imagem JPG, PNG ou WebP.");
       return;
     }
 
-    const newPhotos = nextFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
+    setCompressing(true);
 
-    setPhotos((prev) => [...prev, ...newPhotos]);
+    try {
+      const compressedFiles: File[] = [];
+
+      for (const file of nextFiles) {
+        const compressed = await compressListingPhoto(file);
+        compressedFiles.push(compressed);
+      }
+
+      const newPhotos = compressedFiles.map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+      }));
+
+      setPhotos((prev) => [...prev, ...newPhotos]);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível processar as fotos. Tente novamente.",
+      );
+    } finally {
+      setCompressing(false);
+    }
   }
 
   function removePhoto(index: number) {
@@ -222,7 +244,7 @@ export default function AnunciarForm() {
             id="title"
             type="text"
             required
-            disabled={loading}
+            disabled={busy}
             value={form.title}
             onChange={(e) => updateField("title", e.target.value)}
             placeholder='Ex.: Bicicleta MTB 29" alumínio'
@@ -238,7 +260,7 @@ export default function AnunciarForm() {
             <select
               id="adType"
               required
-              disabled={loading}
+              disabled={busy}
               value={form.adType}
               onChange={(e) => updateAdType(e.target.value as ListingType)}
               className={inputClassName}
@@ -262,7 +284,7 @@ export default function AnunciarForm() {
               <select
                 id="subcategory"
                 required
-                disabled={loading}
+                disabled={busy}
                 value={form.subcategory}
                 onChange={(e) => updateField("subcategory", e.target.value)}
                 className={inputClassName}
@@ -293,7 +315,7 @@ export default function AnunciarForm() {
           <textarea
             id="description"
             required
-            disabled={loading}
+            disabled={busy}
             rows={5}
             value={form.description}
             onChange={(e) => updateField("description", e.target.value)}
@@ -315,7 +337,7 @@ export default function AnunciarForm() {
               type="text"
               inputMode="decimal"
               required
-              disabled={loading}
+              disabled={busy}
               value={form.price}
               onChange={handlePriceChange}
               placeholder="2.500,00"
@@ -333,7 +355,7 @@ export default function AnunciarForm() {
               id="city"
               type="text"
               required
-              disabled={loading}
+              disabled={busy}
               value={form.city}
               onChange={(e) => updateField("city", e.target.value)}
               placeholder="Ex.: São Paulo"
@@ -348,7 +370,7 @@ export default function AnunciarForm() {
             <select
               id="state"
               required
-              disabled={loading}
+              disabled={busy}
               value={form.state}
               onChange={(e) => updateField("state", e.target.value)}
               className={inputClassName}
@@ -373,16 +395,30 @@ export default function AnunciarForm() {
             <input
               id="photos"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
               multiple
-              disabled={loading || photos.length >= MAX_PHOTOS}
+              disabled={busy || photos.length >= MAX_PHOTOS}
               onChange={handlePhotosChange}
               className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-emerald-700 disabled:opacity-60"
             />
             <p className="mt-2 text-xs text-gray-500">
-              Até {MAX_PHOTOS} fotos. Formatos: JPG, PNG ou WebP. Máximo 5 MB
-              cada.
+              Até {MAX_PHOTOS} fotos. Formatos: JPG, PNG ou WebP. As imagens são
+              comprimidas automaticamente antes do envio (até ~1,5 MB cada).
             </p>
+
+            {compressing && (
+              <div
+                className="mt-4 flex items-center gap-3 rounded-lg border border-emerald-200 bg-white px-4 py-3 text-sm text-emerald-800"
+                role="status"
+                aria-live="polite"
+              >
+                <span
+                  className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"
+                  aria-hidden
+                />
+                Comprimindo imagem... Isso pode levar alguns segundos.
+              </div>
+            )}
 
             {photos.length > 0 && (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -400,10 +436,13 @@ export default function AnunciarForm() {
                     <p className="mt-2 truncate text-center text-xs text-gray-500">
                       Foto {index + 1}: {photo.file.name}
                     </p>
+                    <p className="text-center text-[11px] text-emerald-700">
+                      {(photo.file.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
                     <button
                       type="button"
                       onClick={() => removePhoto(index)}
-                      disabled={loading}
+                      disabled={busy}
                       className="mt-2 w-full rounded-md border border-red-200 bg-red-50 px-2 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
                     >
                       Remover
@@ -442,7 +481,7 @@ export default function AnunciarForm() {
             type="tel"
             inputMode="numeric"
             required
-            disabled={loading}
+            disabled={busy}
             value={form.whatsapp}
             onChange={handleWhatsAppChange}
             placeholder="(19) 99999-9999"
@@ -452,10 +491,14 @@ export default function AnunciarForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={busy}
           className="w-full rounded-lg bg-gradient-to-r from-emerald-700 via-emerald-600 to-yellow-400 px-6 py-3.5 text-sm font-bold text-white shadow-md transition hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-yellow-300 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? "Publicando..." : "Publicar anúncio"}
+          {compressing
+            ? "Comprimindo imagem..."
+            : loading
+              ? "Publicando..."
+              : "Publicar anúncio"}
         </button>
       </div>
     </form>

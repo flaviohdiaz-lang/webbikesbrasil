@@ -1,3 +1,4 @@
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import {
   hasSubcategories,
@@ -5,13 +6,14 @@ import {
   listingTypes,
   type ListingType,
 } from "@/data/listing-form";
+import { sendAnuncioPublicadoEmail } from "@/lib/emails/send";
+import { isValidBrazilianPhone, parseBrazilianPhone } from "@/lib/phone";
 import {
   ANUNCIOS_STORAGE_BUCKET,
   createSupabaseAdmin,
   isSupabaseConfigured,
   type AnuncioRow,
 } from "@/lib/supabase/server";
-import { isValidBrazilianPhone, parseBrazilianPhone } from "@/lib/phone";
 
 export const runtime = "nodejs";
 
@@ -188,6 +190,26 @@ export async function POST(request: Request) {
         { error: "Anúncio salvo, mas o servidor não retornou o ID." },
         { status: 500 },
       );
+    }
+
+    try {
+      const user = await currentUser();
+      const email =
+        user?.primaryEmailAddress?.emailAddress ??
+        user?.emailAddresses?.[0]?.emailAddress;
+
+      if (email) {
+        await sendAnuncioPublicadoEmail({
+          to: email,
+          firstName: user?.firstName,
+          anuncioId: data.id,
+          titulo,
+          preco,
+          fotoUrl: fotoUrl,
+        });
+      }
+    } catch (emailError) {
+      console.error("[api/anuncios] Falha ao enviar e-mail de confirmação:", emailError);
     }
 
     return NextResponse.json(
