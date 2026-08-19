@@ -15,7 +15,14 @@ export function createSupabaseAdmin() {
     throw new Error("Variáveis do Supabase não configuradas.");
   }
 
-  return createClient(supabaseUrl, supabaseServiceKey);
+  // service_role / sb_secret deve ignorar RLS no Storage e nas tabelas.
+  // Sem essas opções, o client pode se comportar como sessão de browser.
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
 
 export type AnuncioRow = {
