@@ -8,6 +8,11 @@ import { listingTypes } from "@/data/listing-form";
 const heroCategories = [
   { name: "Bicicletas", emoji: "🚲", href: "/anuncios?categoria=Bicicletas" },
   {
+    name: "Elétricas",
+    emoji: "⚡",
+    href: `/anuncios?categoria=${encodeURIComponent("Bicicletas Elétricas")}`,
+  },
+  {
     name: "Peças",
     emoji: "🔧",
     href: `/anuncios?categoria=${encodeURIComponent("Peças")}`,

@@ -1,5 +1,6 @@
 export const listingTypes = [
   "Bicicletas",
+  "Bicicletas Elétricas",
   "Peças",
   "Acessórios",
   "Serviços",
@@ -18,9 +19,15 @@ export const listingSubcategories: Record<
     "Bike de Cidade",
     "BMX",
     "Gravel",
-    "Elétrica (e-Bike)",
     "Infantil",
     "Dobrável",
+  ],
+  "Bicicletas Elétricas": [
+    "Mountain Bike Elétrica (e-MTB)",
+    "Speed/Road Elétrica",
+    "Bike de Cidade Elétrica",
+    "Dobrável Elétrica",
+    "Cargo Elétrica",
   ],
   Peças: [
     "Quadro",
