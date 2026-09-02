@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { CATEGORIAS, ESTADOS } from '@/lib/categorias'
+import { ESTADOS } from '@/lib/categorias'
+import { listingSubcategories, listingTypes } from '@/data/listing-form'
 import { FiltrosBusca as TFiltros } from '@/hooks/useAnuncios'
 
 interface Props {
@@ -24,7 +25,9 @@ export default function FiltrosBusca({ onChange }: Props) {
     (params.get('ordenar') as TFiltros['ordenar']) ?? 'recentes'
   )
 
-  const subcategorias = categoria ? CATEGORIAS[categoria] ?? [] : []
+  const subcategorias = categoria
+    ? listingSubcategories[categoria as keyof typeof listingSubcategories] ?? []
+    : []
 
   function aplicar() {
     const filtros: TFiltros = {
@@ -96,7 +99,7 @@ export default function FiltrosBusca({ onChange }: Props) {
             value={busca}
             onChange={e => setBusca(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && aplicar()}
-            placeholder="Speed, mountain, quadro..."
+            placeholder="Bicicleta, peça, acessório..."
             className="h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:border-green-600"
           />
         </div>
@@ -109,7 +112,7 @@ export default function FiltrosBusca({ onChange }: Props) {
             className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white focus:outline-none focus:border-green-600"
           >
             <option value="">Todas</option>
-            {Object.keys(CATEGORIAS).map(c => (
+            {listingTypes.map(c => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
