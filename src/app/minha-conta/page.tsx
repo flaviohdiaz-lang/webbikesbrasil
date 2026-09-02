@@ -77,7 +77,7 @@ export default function MinhaConta() {
           <p className="text-sm text-gray-400 mt-1">{user.emailAddresses[0].emailAddress}</p>
         </div>
         <Link
-          href="/anuncios/novo"
+          href="/anunciar"
           className="h-9 px-4 rounded-lg bg-green-700 text-white text-sm font-medium hover:bg-green-800 transition-colors flex items-center gap-2"
         >
           + Novo anuncio
@@ -109,7 +109,7 @@ export default function MinhaConta() {
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
           <p className="text-gray-400 mb-4">Voce ainda nao tem nenhum anuncio.</p>
           <Link
-            href="/anuncios/novo"
+            href="/anunciar"
             className="bg-green-700 text-white px-6 py-2 rounded-lg text-sm hover:bg-green-800"
           >
             Criar primeiro anuncio
