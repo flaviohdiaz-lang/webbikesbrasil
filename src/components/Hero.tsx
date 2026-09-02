@@ -1,24 +1,48 @@
-import Link from "next/link";
+"use client";
 
-const bikeCategories = [
-  "Todas",
-  "Estrada",
-  "Montanha",
-  "Urbana",
-  "Elétrica",
-  "Infantil",
-  "Gravel",
-];
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { listingTypes } from "@/data/listing-form";
 
 const heroCategories = [
-  { name: "Bicicletas", emoji: "🚲", href: "/" },
-  { name: "Peças", emoji: "🔧", href: "/" },
-  { name: "Acessórios", emoji: "🎒", href: "/" },
-  { name: "Serviços", emoji: "🛠️", href: "/" },
+  { name: "Bicicletas", emoji: "🚲", href: "/anuncios?categoria=Bicicletas" },
+  {
+    name: "Peças",
+    emoji: "🔧",
+    href: `/anuncios?categoria=${encodeURIComponent("Peças")}`,
+  },
+  {
+    name: "Acessórios",
+    emoji: "🎒",
+    href: `/anuncios?categoria=${encodeURIComponent("Acessórios")}`,
+  },
+  {
+    name: "Serviços",
+    emoji: "🛠️",
+    href: `/anuncios?categoria=${encodeURIComponent("Serviços")}`,
+  },
   { name: "Eventos", emoji: "📅", href: "/eventos" },
 ] as const;
 
+const categoriasBusca = ["Todas", ...listingTypes];
+
 export default function Hero() {
+  const router = useRouter();
+  const [busca, setBusca] = useState("");
+  const [categoria, setCategoria] = useState("Todas");
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const params = new URLSearchParams();
+    if (busca.trim()) params.set("busca", busca.trim());
+    if (categoria !== "Todas") params.set("categoria", categoria);
+
+    const query = params.toString();
+    router.push(`/anuncios${query ? `?${query}` : ""}`);
+  }
+
   return (
     <section className="bg-emerald-900 px-4 py-14 text-white">
       <div className="mx-auto max-w-6xl text-center">
@@ -46,24 +70,35 @@ export default function Hero() {
           ))}
         </div>
 
-        <div className="mx-auto mt-8 flex max-w-lg flex-col gap-3 sm:flex-row">
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto mt-8 flex max-w-lg flex-col gap-3 sm:flex-row"
+        >
+          <input
+            type="text"
+            value={busca}
+            onChange={(event) => setBusca(event.target.value)}
+            placeholder="Buscar bicicleta, peça, acessório..."
+            className="flex-[2] rounded-lg border-0 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+          />
           <select
+            value={categoria}
+            onChange={(event) => setCategoria(event.target.value)}
             className="flex-1 rounded-lg border-0 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
-            defaultValue="Todas"
           >
-            {bikeCategories.map((cat) => (
+            {categoriasBusca.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
               </option>
             ))}
           </select>
           <button
-            type="button"
+            type="submit"
             className="rounded-lg bg-emerald-800 px-6 py-3 text-sm font-semibold shadow-sm transition hover:bg-emerald-900"
           >
             Buscar
           </button>
-        </div>
+        </form>
       </div>
     </section>
   );
