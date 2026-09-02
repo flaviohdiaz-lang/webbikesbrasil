@@ -58,6 +58,29 @@ body {
   animation: advertise-blink 1.1s ease-in-out infinite;
 }
 
+@keyframes categoria-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.categoria-track {
+  animation: categoria-scroll 22s linear infinite;
+}
+
+.categoria-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categoria-track {
+    animation: none;
+  }
+}
+
 .pix-payment-panel {
   scroll-margin-top: 1rem;
 }

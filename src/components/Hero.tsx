@@ -58,21 +58,23 @@ export default function Hero() {
           Compre e venda bicicletas novas e usadas de ciclistas perto de você.
         </p>
 
-        <div className="mx-auto mt-10 flex max-w-2xl flex-wrap justify-center gap-4 sm:gap-6">
-          {heroCategories.map((category) => (
-            <Link
-              key={category.name}
-              href={category.href}
-              className="flex w-24 flex-col items-center gap-2 rounded-xl bg-white/10 px-3 py-4 transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-            >
-              <span className="text-3xl" aria-hidden>
-                {category.emoji}
-              </span>
-              <span className="text-xs font-semibold sm:text-sm">
-                {category.name}
-              </span>
-            </Link>
-          ))}
+        <div className="relative mx-auto mt-10 max-w-2xl overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <div className="categoria-track flex w-max gap-4 sm:gap-6">
+            {[...heroCategories, ...heroCategories].map((category, index) => (
+              <Link
+                key={`${category.name}-${index}`}
+                href={category.href}
+                className="flex w-24 flex-shrink-0 flex-col items-center gap-2 rounded-xl bg-white/10 px-3 py-4 transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              >
+                <span className="text-3xl" aria-hidden>
+                  {category.emoji}
+                </span>
+                <span className="text-xs font-semibold sm:text-sm">
+                  {category.name}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
 
         <form
