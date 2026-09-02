@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-export const EMAIL_FROM = "WebBikesBrasil <contato@send.webbikesbrasil.com>";
+export const EMAIL_FROM = "WebBikesBrasil <contato@webbikesbrasil.com>";
 
 export function getSiteUrl(): string {
   return (
