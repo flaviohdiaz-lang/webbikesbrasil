@@ -32,24 +32,6 @@ export default function NavbarLogo() {
           </Link>
         </div>
       </div>
-
-      <nav className="flex justify-center gap-1 py-2 bg-white border-b border-gray-100">
-        <Link href="/" className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800">
-          Início
-        </Link>
-        <Link href="/anuncios" className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800">
-          Ver anúncios
-        </Link>
-        <Link href="/eventos" className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800">
-          Eventos
-        </Link>
-        <Link href="/planos" className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800">
-          Planos
-        </Link>
-        <Link href="/minha-conta" className="rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-800">
-          Minha conta
-        </Link>
-      </nav>
     </header>
   );
 }
