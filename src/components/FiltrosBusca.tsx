@@ -4,10 +4,21 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ESTADOS } from '@/lib/categorias'
 import { listingSubcategories, listingTypes } from '@/data/listing-form'
+import { formatBrazilianCurrencyInput, parseBrazilianCurrency } from '@/lib/currency'
 import { FiltrosBusca as TFiltros } from '@/hooks/useAnuncios'
 
 interface Props {
   onChange: (filtros: TFiltros) => void
+}
+
+function precoParaMascara(valor: string | null): string {
+  if (!valor) return ''
+  const numero = Number(valor)
+  if (Number.isNaN(numero)) return ''
+  return numero.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
 }
 
 export default function FiltrosBusca({ onChange }: Props) {
@@ -19,8 +30,8 @@ export default function FiltrosBusca({ onChange }: Props) {
   const [subcategoria, setSubcategoria] = useState(params.get('subcategoria') ?? '')
   const [estado, setEstado] = useState(params.get('estado') ?? '')
   const [cidade, setCidade] = useState(params.get('cidade') ?? '')
-  const [precoMin, setPrecoMin] = useState(params.get('precoMin') ?? '')
-  const [precoMax, setPrecoMax] = useState(params.get('precoMax') ?? '')
+  const [precoMin, setPrecoMin] = useState(precoParaMascara(params.get('precoMin')))
+  const [precoMax, setPrecoMax] = useState(precoParaMascara(params.get('precoMax')))
   const [ordenar, setOrdenar] = useState<TFiltros['ordenar']>(
     (params.get('ordenar') as TFiltros['ordenar']) ?? 'recentes'
   )
@@ -36,8 +47,8 @@ export default function FiltrosBusca({ onChange }: Props) {
       subcategoria: subcategoria || undefined,
       estado: estado || undefined,
       cidade: cidade || undefined,
-      precoMin: precoMin ? Number(precoMin) : undefined,
-      precoMax: precoMax ? Number(precoMax) : undefined,
+      precoMin: precoMin ? parseBrazilianCurrency(precoMin) : undefined,
+      precoMax: precoMax ? parseBrazilianCurrency(precoMax) : undefined,
       ordenar,
     }
 
@@ -85,8 +96,28 @@ export default function FiltrosBusca({ onChange }: Props) {
     subcategoria ? { label: subcategoria, chave: 'subcategoria' as const } : null,
     estado ? { label: estado, chave: 'estado' as const } : null,
     cidade ? { label: cidade, chave: 'cidade' as const } : null,
-    precoMin ? { label: 'A partir de R$ ' + Number(precoMin).toLocaleString('pt-BR'), chave: 'precoMin' as const } : null,
-    precoMax ? { label: 'Ate R$ ' + Number(precoMax).toLocaleString('pt-BR'), chave: 'precoMax' as const } : null,
+    precoMin
+      ? {
+          label:
+            'A partir de R$ ' +
+            parseBrazilianCurrency(precoMin).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+          chave: 'precoMin' as const,
+        }
+      : null,
+    precoMax
+      ? {
+          label:
+            'Ate R$ ' +
+            parseBrazilianCurrency(precoMax).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+          chave: 'precoMax' as const,
+        }
+      : null,
   ].filter(Boolean) as { label: string; chave: keyof TFiltros }[]
 
   return (
@@ -161,28 +192,36 @@ export default function FiltrosBusca({ onChange }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-3 items-end mt-3">
-        <div className="flex flex-col gap-1 min-w-[110px]">
+        <div className="flex flex-col gap-1 min-w-[130px]">
           <label className="text-[11px] uppercase tracking-wide text-gray-400 font-medium">Preco min.</label>
-          <input
-            type="number"
-            value={precoMin}
-            onChange={e => setPrecoMin(e.target.value)}
-            placeholder="R$ 0"
-            min={0}
-            className="h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:border-green-600"
-          />
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">R$</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={precoMin}
+              onChange={e => setPrecoMin(formatBrazilianCurrencyInput(e.target.value))}
+              onKeyDown={e => e.key === 'Enter' && aplicar()}
+              placeholder="0,00"
+              className="h-9 w-full rounded-lg border border-gray-200 pl-8 pr-3 text-sm focus:outline-none focus:border-green-600"
+            />
+          </div>
         </div>
 
-        <div className="flex flex-col gap-1 min-w-[110px]">
+        <div className="flex flex-col gap-1 min-w-[130px]">
           <label className="text-[11px] uppercase tracking-wide text-gray-400 font-medium">Preco max.</label>
-          <input
-            type="number"
-            value={precoMax}
-            onChange={e => setPrecoMax(e.target.value)}
-            placeholder="R$ 50.000"
-            min={0}
-            className="h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:border-green-600"
-          />
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">R$</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={precoMax}
+              onChange={e => setPrecoMax(formatBrazilianCurrencyInput(e.target.value))}
+              onKeyDown={e => e.key === 'Enter' && aplicar()}
+              placeholder="50.000,00"
+              className="h-9 w-full rounded-lg border border-gray-200 pl-8 pr-3 text-sm focus:outline-none focus:border-green-600"
+            />
+          </div>
         </div>
 
         <div className="flex gap-2 ml-auto items-end">
