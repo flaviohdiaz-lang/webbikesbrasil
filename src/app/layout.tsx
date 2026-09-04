@@ -2,7 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Footer from "@/components/Footer";
 import PromoBanner from "@/components/PromoBanner";
 import SiteNav from "@/components/SiteNav";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -14,6 +14,16 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "WebBikesBrasil — Comprar e vender bicicletas",
   description: "Seu marketplace de bicicletas novas e usadas de todo o Brasil.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "WebBikesBrasil",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#064e3b",
 };
 
 export default function RootLayout({
