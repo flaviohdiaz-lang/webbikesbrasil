@@ -2,12 +2,14 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: "/",
     name: "WebBikesBrasil",
     short_name: "WebBikes",
     description:
       "Compre e venda bicicletas, peças, acessórios e serviços com ciclistas de todo o Brasil.",
     start_url: "/",
     display: "standalone",
+    orientation: "portrait-primary",
     background_color: "#f9fafb",
     theme_color: "#064e3b",
     icons: [
