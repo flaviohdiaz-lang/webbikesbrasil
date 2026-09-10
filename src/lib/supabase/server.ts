@@ -37,6 +37,8 @@ export type AnuncioRow = {
   foto_url2: string | null;
   foto_url3: string | null;
   whatsapp: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 export const ANUNCIOS_STORAGE_BUCKET = "anuncios";

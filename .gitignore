@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# chave de assinatura do aplicativo Android (NUNCA deve ir para o GitHub)
+*.keystore
+*.jks
+signing-key-info.txt
+/android-app/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

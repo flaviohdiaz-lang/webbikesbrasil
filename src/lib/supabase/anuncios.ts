@@ -14,7 +14,7 @@ export async function fetchAnuncios(): Promise<Anuncio[]> {
   const { data, error } = await supabase
     .from("anuncios")
     .select(
-      "id, titulo, categoria, subcategoria, descricao, preco, cidade, estado, foto_url, foto_url2, foto_url3, whatsapp, created_at",
+      "id, titulo, categoria, subcategoria, descricao, preco, cidade, estado, foto_url, foto_url2, foto_url3, whatsapp, latitude, longitude, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -35,7 +35,7 @@ export async function fetchAnuncioById(id: string): Promise<Anuncio | null> {
   const { data, error } = await supabase
     .from("anuncios")
     .select(
-      "id, titulo, categoria, subcategoria, descricao, preco, cidade, estado, foto_url, foto_url2, foto_url3, whatsapp, created_at",
+      "id, titulo, categoria, subcategoria, descricao, preco, cidade, estado, foto_url, foto_url2, foto_url3, whatsapp, latitude, longitude, created_at",
     )
     .eq("id", id)
     .maybeSingle();

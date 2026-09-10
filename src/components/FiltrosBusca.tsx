@@ -7,6 +7,40 @@ import { listingSubcategories, listingTypes } from '@/data/listing-form'
 import { formatBrazilianCurrencyInput, parseBrazilianCurrency } from '@/lib/currency'
 import { FiltrosBusca as TFiltros } from '@/hooks/useAnuncios'
 
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
+
+async function geocodificarNoNavegador(
+  texto: string,
+): Promise<{ lat: number; lng: number } | null> {
+  const query = texto.trim()
+  if (!query) return null
+
+  try {
+    const url = new URL(NOMINATIM_URL)
+    url.searchParams.set('q', `${query}, Brasil`)
+    url.searchParams.set('format', 'json')
+    url.searchParams.set('limit', '1')
+    url.searchParams.set('countrycodes', 'br')
+
+    const response = await fetch(url.toString(), {
+      headers: { 'Accept-Language': 'pt-BR' },
+    })
+    if (!response.ok) return null
+
+    const data = (await response.json()) as Array<{ lat: string; lon: string }>
+    const first = data[0]
+    if (!first) return null
+
+    const lat = Number(first.lat)
+    const lng = Number(first.lon)
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return null
+
+    return { lat, lng }
+  } catch {
+    return null
+  }
+}
+
 interface Props {
   onChange: (filtros: TFiltros) => void
 }
@@ -36,6 +70,16 @@ export default function FiltrosBusca({ onChange }: Props) {
     (params.get('ordenar') as TFiltros['ordenar']) ?? 'recentes'
   )
 
+  const [localizacaoTexto, setLocalizacaoTexto] = useState(params.get('local') ?? '')
+  const [origemLat, setOrigemLat] = useState<number | undefined>(
+    params.get('origemLat') ? Number(params.get('origemLat')) : undefined
+  )
+  const [origemLng, setOrigemLng] = useState<number | undefined>(
+    params.get('origemLng') ? Number(params.get('origemLng')) : undefined
+  )
+  const [buscandoLocalizacao, setBuscandoLocalizacao] = useState(false)
+  const [erroLocalizacao, setErroLocalizacao] = useState<string | null>(null)
+
   const subcategorias = categoria
     ? listingSubcategories[categoria as keyof typeof listingSubcategories] ?? []
     : []
@@ -50,6 +94,8 @@ export default function FiltrosBusca({ onChange }: Props) {
       precoMin: precoMin ? parseBrazilianCurrency(precoMin) : undefined,
       precoMax: precoMax ? parseBrazilianCurrency(precoMax) : undefined,
       ordenar,
+      origemLat,
+      origemLng,
     }
 
     const q = new URLSearchParams()
@@ -61,6 +107,11 @@ export default function FiltrosBusca({ onChange }: Props) {
     if (filtros.precoMin) q.set('precoMin', String(filtros.precoMin))
     if (filtros.precoMax) q.set('precoMax', String(filtros.precoMax))
     if (filtros.ordenar && filtros.ordenar !== 'recentes') q.set('ordenar', filtros.ordenar)
+    if (origemLat !== undefined && origemLng !== undefined) {
+      q.set('origemLat', String(origemLat))
+      q.set('origemLng', String(origemLng))
+      if (localizacaoTexto) q.set('local', localizacaoTexto)
+    }
 
     router.push('/anuncios?' + q.toString(), { scroll: false })
     onChange(filtros)
@@ -75,11 +126,15 @@ export default function FiltrosBusca({ onChange }: Props) {
     setPrecoMin('')
     setPrecoMax('')
     setOrdenar('recentes')
+    setLocalizacaoTexto('')
+    setOrigemLat(undefined)
+    setOrigemLng(undefined)
+    setErroLocalizacao(null)
     router.push('/anuncios', { scroll: false })
     onChange({})
   }
 
-  function removerFiltro(chave: keyof TFiltros) {
+  function removerFiltro(chave: keyof TFiltros | 'local') {
     if (chave === 'busca') setBusca('')
     if (chave === 'categoria') { setCategoria(''); setSubcategoria('') }
     if (chave === 'subcategoria') setSubcategoria('')
@@ -87,10 +142,65 @@ export default function FiltrosBusca({ onChange }: Props) {
     if (chave === 'cidade') setCidade('')
     if (chave === 'precoMin') setPrecoMin('')
     if (chave === 'precoMax') setPrecoMax('')
+    if (chave === 'local') {
+      setLocalizacaoTexto('')
+      setOrigemLat(undefined)
+      setOrigemLng(undefined)
+      if (ordenar === 'distancia') setOrdenar('recentes')
+    }
     setTimeout(aplicar, 0)
   }
 
+  async function buscarPorEndereco() {
+    if (!localizacaoTexto.trim()) return
+    setBuscandoLocalizacao(true)
+    setErroLocalizacao(null)
+
+    const resultado = await geocodificarNoNavegador(localizacaoTexto)
+
+    setBuscandoLocalizacao(false)
+
+    if (!resultado) {
+      setErroLocalizacao('Não encontramos essa localização. Tente digitar de outra forma, ex.: "Campinas, SP".')
+      return
+    }
+
+    setOrigemLat(resultado.lat)
+    setOrigemLng(resultado.lng)
+    setOrdenar('distancia')
+    setTimeout(aplicar, 0)
+  }
+
+  function usarMinhaLocalizacao() {
+    if (!navigator.geolocation) {
+      setErroLocalizacao('Seu navegador não permite compartilhar localização.')
+      return
+    }
+
+    setBuscandoLocalizacao(true)
+    setErroLocalizacao(null)
+
+    navigator.geolocation.getCurrentPosition(
+      (posicao) => {
+        setBuscandoLocalizacao(false)
+        setOrigemLat(posicao.coords.latitude)
+        setOrigemLng(posicao.coords.longitude)
+        setLocalizacaoTexto('Minha localização atual')
+        setOrdenar('distancia')
+        setTimeout(aplicar, 0)
+      },
+      () => {
+        setBuscandoLocalizacao(false)
+        setErroLocalizacao('Não conseguimos acessar sua localização. Verifique a permissão do navegador.')
+      },
+      { enableHighAccuracy: false, timeout: 10000 },
+    )
+  }
+
   const tagsFiltros = [
+    origemLat !== undefined
+      ? { label: '📍 Perto de ' + (localizacaoTexto || 'você'), chave: 'local' as const }
+      : null,
     busca ? { label: '"' + busca + '"', chave: 'busca' as const } : null,
     categoria ? { label: categoria, chave: 'categoria' as const } : null,
     subcategoria ? { label: subcategoria, chave: 'subcategoria' as const } : null,
@@ -118,7 +228,7 @@ export default function FiltrosBusca({ onChange }: Props) {
           chave: 'precoMax' as const,
         }
       : null,
-  ].filter(Boolean) as { label: string; chave: keyof TFiltros }[]
+  ].filter(Boolean) as { label: string; chave: keyof TFiltros | 'local' }[]
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-6 shadow-sm">
@@ -192,6 +302,42 @@ export default function FiltrosBusca({ onChange }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-3 items-end mt-3">
+        <div className="flex flex-col gap-1 flex-[2] min-w-[220px]">
+          <label className="text-[11px] uppercase tracking-wide text-gray-400 font-medium">Localização</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={localizacaoTexto}
+              onChange={e => setLocalizacaoTexto(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && buscarPorEndereco()}
+              placeholder="Cidade, rua ou endereço..."
+              disabled={buscandoLocalizacao}
+              className="h-9 flex-1 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:border-green-600 disabled:opacity-60"
+            />
+            <button
+              type="button"
+              onClick={buscarPorEndereco}
+              disabled={buscandoLocalizacao || !localizacaoTexto.trim()}
+              className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+              title="Buscar por este endereço"
+            >
+              🔍
+            </button>
+            <button
+              type="button"
+              onClick={usarMinhaLocalizacao}
+              disabled={buscandoLocalizacao}
+              className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-60 whitespace-nowrap"
+              title="Usar minha localização atual"
+            >
+              📍 {buscandoLocalizacao ? 'Buscando...' : 'Perto de mim'}
+            </button>
+          </div>
+          {erroLocalizacao && (
+            <p className="text-xs text-red-600 mt-0.5">{erroLocalizacao}</p>
+          )}
+        </div>
+
         <div className="flex flex-col gap-1 min-w-[130px]">
           <label className="text-[11px] uppercase tracking-wide text-gray-400 font-medium">Preco min.</label>
           <div className="relative">

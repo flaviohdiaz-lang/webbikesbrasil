@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { distanciaEmKm } from '@/lib/geocoding'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,6 +22,10 @@ export interface Anuncio {
   foto_url3: string
   whatsapp: string
   user_id: string
+  latitude: number | null
+  longitude: number | null
+  /** Preenchido no navegador quando a busca tem uma localização de origem. */
+  distanciaKm?: number
 }
 
 export interface FiltrosBusca {
@@ -31,7 +36,10 @@ export interface FiltrosBusca {
   cidade?: string
   precoMin?: number
   precoMax?: number
-  ordenar?: 'recentes' | 'menor_preco' | 'maior_preco'
+  ordenar?: 'recentes' | 'menor_preco' | 'maior_preco' | 'distancia'
+  /** Coordenadas de onde a pessoa está buscando (GPS ou endereço digitado). */
+  origemLat?: number
+  origemLng?: number
 }
 
 export function useAnuncios(filtros: FiltrosBusca) {
@@ -86,7 +94,33 @@ export function useAnuncios(filtros: FiltrosBusca) {
 
       if (error) throw error
 
-      setAnuncios(data ?? [])
+      let resultado = (data ?? []) as Anuncio[]
+
+      if (filtros.origemLat !== undefined && filtros.origemLng !== undefined) {
+        const origem = { latitude: filtros.origemLat, longitude: filtros.origemLng }
+
+        resultado = resultado.map((anuncio) =>
+          anuncio.latitude !== null && anuncio.longitude !== null
+            ? {
+                ...anuncio,
+                distanciaKm: distanciaEmKm(origem, {
+                  latitude: anuncio.latitude,
+                  longitude: anuncio.longitude,
+                }),
+              }
+            : anuncio,
+        )
+
+        if (filtros.ordenar === 'distancia') {
+          resultado = [...resultado].sort((a, b) => {
+            if (a.distanciaKm === undefined) return 1
+            if (b.distanciaKm === undefined) return -1
+            return a.distanciaKm - b.distanciaKm
+          })
+        }
+      }
+
+      setAnuncios(resultado)
       setTotal(count ?? 0)
     } catch (e: any) {
       setErro(e.message ?? 'Erro ao buscar anúncios')

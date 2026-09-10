@@ -50,6 +50,13 @@ function CardAnuncio({ anuncio }: { anuncio: ReturnType<typeof useAnuncios>['anu
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             {anuncio.cidade}, {anuncio.estado}
+            {anuncio.distanciaKm !== undefined && (
+              <span className="text-green-700 font-medium">
+                · {anuncio.distanciaKm < 1
+                  ? 'menos de 1 km'
+                  : `${anuncio.distanciaKm.toFixed(0)} km`}
+              </span>
+            )}
           </span>
           <span className="text-[10px] text-gray-300">
             {formatarData(anuncio.created_at)}
@@ -123,6 +130,8 @@ function AnunciosPageContent() {
     precoMin: params.get('precoMin') ? Number(params.get('precoMin')) : undefined,
     precoMax: params.get('precoMax') ? Number(params.get('precoMax')) : undefined,
     ordenar: (params.get('ordenar') as TFiltros['ordenar']) ?? 'recentes',
+    origemLat: params.get('origemLat') ? Number(params.get('origemLat')) : undefined,
+    origemLng: params.get('origemLng') ? Number(params.get('origemLng')) : undefined,
   })
 
   const { anuncios, total, loading, erro } = useAnuncios(filtros)
@@ -154,6 +163,9 @@ function AnunciosPageContent() {
           onChange={e => setFiltros(f => ({ ...f, ordenar: e.target.value as TFiltros['ordenar'] }))}
           className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20"
         >
+          {filtros.origemLat !== undefined && (
+            <option value="distancia">Mais próximos</option>
+          )}
           <option value="recentes">Mais recentes</option>
           <option value="menor_preco">Menor preço</option>
           <option value="maior_preco">Maior preço</option>

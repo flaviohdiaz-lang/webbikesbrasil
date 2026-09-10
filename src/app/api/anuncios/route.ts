@@ -7,6 +7,7 @@ import {
   type ListingType,
 } from "@/data/listing-form";
 import { sendAnuncioPublicadoEmail } from "@/lib/emails/send";
+import { geocodificarEndereco } from "@/lib/geocoding";
 import { isValidBrazilianPhone, parseBrazilianPhone } from "@/lib/phone";
 import {
   ANUNCIOS_STORAGE_BUCKET,
@@ -151,6 +152,12 @@ export async function POST(request: Request) {
     const [fotoUrl, fotoUrl2, fotoUrl3] =
       fotos.length > 0 ? await uploadPhotos(fotos) : [null, null, null];
 
+    // Calcula a localização (latitude/longitude) a partir da cidade e estado
+    // informados, para permitir a busca "perto de mim" depois. Se o serviço
+    // de geolocalização falhar por qualquer motivo, o anúncio ainda assim é
+    // publicado normalmente, só sem aparecer na busca por proximidade.
+    const coordenadas = await geocodificarEndereco(`${cidade}, ${estado}, Brasil`);
+
     const row: AnuncioRow = {
       titulo,
       categoria: tipo,
@@ -163,6 +170,8 @@ export async function POST(request: Request) {
       foto_url2: fotoUrl2,
       foto_url3: fotoUrl3,
       whatsapp,
+      latitude: coordenadas?.latitude ?? null,
+      longitude: coordenadas?.longitude ?? null,
     };
 
     const supabase = createSupabaseAdmin();
