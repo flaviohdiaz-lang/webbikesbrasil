@@ -45,6 +45,12 @@ interface Props {
   onChange: (filtros: TFiltros) => void
 }
 
+// Arredonda a coordenada para nível de bairro/cidade (evita expor o endereço
+// exato de quem está buscando, seja por GPS ou por endereço digitado).
+function arredondarCoordenada(valor: number): number {
+  return Math.round(valor * 100) / 100
+}
+
 function precoParaMascara(valor: string | null): string {
   if (!valor) return ''
   const numero = Number(valor)
@@ -165,8 +171,8 @@ export default function FiltrosBusca({ onChange }: Props) {
       return
     }
 
-    setOrigemLat(resultado.lat)
-    setOrigemLng(resultado.lng)
+    setOrigemLat(arredondarCoordenada(resultado.lat))
+    setOrigemLng(arredondarCoordenada(resultado.lng))
     setOrdenar('distancia')
     setTimeout(aplicar, 0)
   }
@@ -183,9 +189,8 @@ export default function FiltrosBusca({ onChange }: Props) {
     navigator.geolocation.getCurrentPosition(
       (posicao) => {
         setBuscandoLocalizacao(false)
-        setOrigemLat(posicao.coords.latitude)
-        setOrigemLng(posicao.coords.longitude)
-        setLocalizacaoTexto('Minha localização atual')
+        setOrigemLat(arredondarCoordenada(posicao.coords.latitude))
+        setOrigemLng(arredondarCoordenada(posicao.coords.longitude))
         setOrdenar('distancia')
         setTimeout(aplicar, 0)
       },
