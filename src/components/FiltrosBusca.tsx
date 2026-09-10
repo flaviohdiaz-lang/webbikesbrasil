@@ -51,6 +51,52 @@ function arredondarCoordenada(valor: number): number {
   return Math.round(valor * 100) / 100
 }
 
+// Converte um ponto de GPS exato em um nome de bairro/cidade (ex.: "Vila
+// Madalena, São Paulo"), sem nunca expor a coordenada exata da pessoa.
+async function obterCidadeBairro(lat: number, lng: number): Promise<string | null> {
+  try {
+    const url = new URL('https://nominatim.openstreetmap.org/reverse')
+    url.searchParams.set('lat', String(lat))
+    url.searchParams.set('lon', String(lng))
+    url.searchParams.set('format', 'json')
+    url.searchParams.set('zoom', '14')
+    url.searchParams.set('addressdetails', '1')
+
+    const response = await fetch(url.toString(), {
+      headers: { 'Accept-Language': 'pt-BR' },
+    })
+    if (!response.ok) return null
+
+    const data = (await response.json()) as {
+      address?: {
+        suburb?: string
+        neighbourhood?: string
+        city_district?: string
+        city?: string
+        town?: string
+        village?: string
+        municipality?: string
+        state?: string
+      }
+    }
+
+    const endereco = data.address
+    if (!endereco) return null
+
+    const bairro = endereco.suburb || endereco.neighbourhood || endereco.city_district
+    const cidade = endereco.city || endereco.town || endereco.village || endereco.municipality
+    const estado = endereco.state
+
+    if (bairro && cidade) return `${bairro}, ${cidade}`
+    if (cidade && estado) return `${cidade}, ${estado}`
+    if (cidade) return cidade
+
+    return null
+  } catch {
+    return null
+  }
+}
+
 function precoParaMascara(valor: string | null): string {
   if (!valor) return ''
   const numero = Number(valor)
@@ -187,10 +233,32 @@ export default function FiltrosBusca({ onChange }: Props) {
     setErroLocalizacao(null)
 
     navigator.geolocation.getCurrentPosition(
-      (posicao) => {
+      async (posicao) => {
+        // Não usamos o ponto exato do GPS: primeiro descobrimos só o
+        // bairro/cidade da pessoa, e depois buscamos a coordenada
+        // aproximada desse bairro/cidade (igual a uma busca por endereço).
+        const nomeLocal = await obterCidadeBairro(
+          posicao.coords.latitude,
+          posicao.coords.longitude,
+        )
+
+        if (!nomeLocal) {
+          setBuscandoLocalizacao(false)
+          setErroLocalizacao('Não conseguimos identificar sua cidade. Tente digitar o endereço.')
+          return
+        }
+
+        const coordenadas = await geocodificarNoNavegador(nomeLocal)
         setBuscandoLocalizacao(false)
-        setOrigemLat(arredondarCoordenada(posicao.coords.latitude))
-        setOrigemLng(arredondarCoordenada(posicao.coords.longitude))
+
+        if (!coordenadas) {
+          setErroLocalizacao('Não conseguimos identificar sua cidade. Tente digitar o endereço.')
+          return
+        }
+
+        setLocalizacaoTexto(nomeLocal)
+        setOrigemLat(arredondarCoordenada(coordenadas.lat))
+        setOrigemLng(arredondarCoordenada(coordenadas.lng))
         setOrdenar('distancia')
         setTimeout(aplicar, 0)
       },
