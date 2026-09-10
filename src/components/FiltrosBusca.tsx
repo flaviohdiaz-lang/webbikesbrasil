@@ -199,7 +199,7 @@ export default function FiltrosBusca({ onChange }: Props) {
 
   const tagsFiltros = [
     origemLat !== undefined
-      ? { label: '📍 Perto de ' + (localizacaoTexto || 'você'), chave: 'local' as const }
+      ? { label: '📍 Próximo de ' + (localizacaoTexto || 'você'), chave: 'local' as const }
       : null,
     busca ? { label: '"' + busca + '"', chave: 'busca' as const } : null,
     categoria ? { label: categoria, chave: 'categoria' as const } : null,
@@ -323,15 +323,6 @@ export default function FiltrosBusca({ onChange }: Props) {
             >
               🔍
             </button>
-            <button
-              type="button"
-              onClick={usarMinhaLocalizacao}
-              disabled={buscandoLocalizacao}
-              className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-60 whitespace-nowrap"
-              title="Usar minha localização atual"
-            >
-              📍 {buscandoLocalizacao ? 'Buscando...' : 'Perto de mim'}
-            </button>
           </div>
           {erroLocalizacao && (
             <p className="text-xs text-red-600 mt-0.5">{erroLocalizacao}</p>
@@ -379,6 +370,15 @@ export default function FiltrosBusca({ onChange }: Props) {
               Limpar
             </button>
           )}
+          <button
+            type="button"
+            onClick={usarMinhaLocalizacao}
+            disabled={buscandoLocalizacao}
+            className="h-9 px-4 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-60 whitespace-nowrap"
+            title="Usar minha localização atual"
+          >
+            📍 {buscandoLocalizacao ? 'Buscando...' : 'Próximo de mim'}
+          </button>
           <button
             onClick={aplicar}
             className="h-9 px-5 rounded-lg bg-green-700 text-white text-sm font-medium hover:bg-green-800 flex items-center gap-2"
