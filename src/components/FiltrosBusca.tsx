@@ -314,15 +314,6 @@ export default function FiltrosBusca({ onChange }: Props) {
               disabled={buscandoLocalizacao}
               className="h-9 flex-1 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:border-green-600 disabled:opacity-60"
             />
-            <button
-              type="button"
-              onClick={buscarPorEndereco}
-              disabled={buscandoLocalizacao || !localizacaoTexto.trim()}
-              className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40"
-              title="Buscar por este endereço"
-            >
-              🔍
-            </button>
           </div>
           {erroLocalizacao && (
             <p className="text-xs text-red-600 mt-0.5">{erroLocalizacao}</p>
