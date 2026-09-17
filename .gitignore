@@ -45,3 +45,7 @@ signing-key-info.txt
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# pasta de saidas de outras ferramentas de IA (chegou a vazar uma chave secreta
+# antiga aqui dentro — nunca deve ir para o GitHub)
+/Claude outputs/
