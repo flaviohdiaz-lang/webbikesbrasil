@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   title: "WebBikesBrasil — Comprar e vender bicicletas",
   description: "Seu marketplace de bicicletas novas e usadas de todo o Brasil.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
