@@ -16,6 +16,16 @@ export default function NavbarLogo() {
 
         <div className="absolute inset-0 bg-emerald-900/60" />
 
+        <div className="absolute left-2.5 top-2.5 z-20 sm:left-4 sm:top-4">
+          <Image
+            src="/icons/icon-192.png"
+            alt="Logo Web Bikes Brasil"
+            width={64}
+            height={64}
+            className="h-11 w-11 rounded-xl shadow-lg sm:h-16 sm:w-16"
+          />
+        </div>
+
         <div className="relative z-10 flex h-full items-center justify-between px-6">
           
           <Link href="/" className="flex-1 text-center">
