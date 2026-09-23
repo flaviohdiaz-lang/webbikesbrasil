@@ -64,11 +64,8 @@ export default function Hero() {
               <Link
                 key={`${category.name}-${index}`}
                 href={category.href}
-                className="flex w-24 flex-shrink-0 flex-col items-center gap-2 rounded-xl bg-white/10 px-3 py-4 transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                className="flex w-24 flex-shrink-0 flex-col items-center justify-center rounded-xl bg-white/10 px-3 py-4 transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
-                <span className="text-3xl" aria-hidden>
-                  {category.emoji}
-                </span>
                 <span className="text-xs font-semibold sm:text-sm">
                   {category.name}
                 </span>
