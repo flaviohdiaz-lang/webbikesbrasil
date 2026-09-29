@@ -4,6 +4,7 @@ import PromoBanner from "@/components/PromoBanner";
 import SiteNav from "@/components/SiteNav";
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,6 +40,12 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
         <body className="flex min-h-full flex-col font-sans">
+          <Script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1456514035021669"
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
           <PromoBanner />
           <SiteNav />
           <div className="flex-1">{children}</div>
