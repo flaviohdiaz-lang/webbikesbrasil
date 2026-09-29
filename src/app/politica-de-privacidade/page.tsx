@@ -131,6 +131,36 @@ export default function PoliticaDePrivacidadePage() {
               Usamos cookies para manter você conectado à sua conta e melhorar a
               navegação no site.
             </p>
+            <p className="mt-3 leading-relaxed text-gray-700">
+              O WebBikesBrasil também utiliza o{" "}
+              <strong className="text-gray-900">Google AdSense</strong> para
+              exibir anúncios de terceiros. O Google e seus parceiros
+              publicitários podem usar cookies para personalizar os anúncios
+              exibidos com base nas suas visitas a este e a outros sites.
+            </p>
+            <p className="mt-3 leading-relaxed text-gray-700">
+              Você pode gerenciar ou desativar a personalização de anúncios a
+              qualquer momento nas{" "}
+              <a
+                href="https://adssettings.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-emerald-900 underline underline-offset-2 hover:text-emerald-700"
+              >
+                Configurações de anúncios do Google
+              </a>
+              , e saber mais sobre como o Google usa dados de sites parceiros
+              na{" "}
+              <a
+                href="https://policies.google.com/technologies/partner-sites"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-emerald-900 underline underline-offset-2 hover:text-emerald-700"
+              >
+                página de parceiros do Google
+              </a>
+              .
+            </p>
           </section>
 
           <section className="mt-8">
